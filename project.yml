@@ -1,0 +1,10 @@
+project.name: "demos"
+
+project.repositories:
+      - apache-mynewt-core
+
+repository.apache-mynewt-core:
+      type: github
+      vers: 0.0.0
+      user: apache
+      repo: incubator-mynewt-core

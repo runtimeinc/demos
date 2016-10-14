@@ -1,0 +1,7 @@
+# Package: apps/blemaster
+
+syscfg.vals:
+    # DEBUG logging is a bit noisy; use INFO.
+    LOG_LEVEL: 1
+    BLE_MAX_CONNECTIONS: 10
+    BLE_LL_WHITELIST_SIZE: 8
