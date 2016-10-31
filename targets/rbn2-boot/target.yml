@@ -1,0 +1,4 @@
+### Target: targets/rbn2-boot
+target.app: "@apache-mynewt-core/apps/boot"
+target.bsp: "@apache-mynewt-core/hw/bsp/rb-nano2"
+target.build_profile: "optimized"
