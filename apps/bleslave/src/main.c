@@ -183,7 +183,11 @@ bleprph_gap_event(struct ble_gap_event *event, void *arg)
             /* Connection failed; resume advertising. */
             bleprph_advertise();
         }
+#if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
+        hal_gpio_clear(g_led_pin);
+#else
         hal_gpio_set(g_led_pin);
+#endif
         return 0;
 
     case BLE_GAP_EVENT_DISCONNECT:
@@ -192,8 +196,12 @@ bleprph_gap_event(struct ble_gap_event *event, void *arg)
         BLEPRPH_LOG(INFO, "\n");
 
         /* Connection terminated; resume advertising. */
-        hal_gpio_clear(g_led_pin);
         bleprph_advertise();
+#if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
+        hal_gpio_set(g_led_pin);
+#else
+        hal_gpio_clear(g_led_pin);
+#endif
         return 0;
 
     case BLE_GAP_EVENT_CONN_UPDATE:
@@ -265,7 +273,11 @@ bleprph_task_handler(void *unused)
     /* Set the led pin for the devboard */
     g_led_pin = LED_BLINK_PIN;
     hal_gpio_init_out(g_led_pin, 1);
+#if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
+    hal_gpio_set(g_led_pin);
+#else
     hal_gpio_clear(g_led_pin);
+#endif
 
     /* Activate the host.  This causes the host to synchronize with the
      * controller.
