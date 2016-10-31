@@ -1,0 +1,4 @@
+### Target: targets/blemaster-rbn1
+target.app: "apps/blemaster"
+target.bsp: "@apache-mynewt-core/hw/bsp/nrf51-blenano"
+target.build_profile: "debug"

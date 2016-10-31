@@ -24,6 +24,8 @@
 #include "bsp/bsp.h"
 #include "os/os.h"
 
+#include "hal/hal_gpio.h"
+
 /* BLE */
 #include "nimble/ble.h"
 #include "controller/ble_ll.h"
@@ -44,6 +46,9 @@
 
 /** Log data. */
 struct log blecent_log;
+
+/* For LED toggling */
+static int g_led_pin;
 
 /** blecent task settings. */
 #define BLECENT_TASK_PRIO           1
@@ -313,6 +318,16 @@ blecent_task_handler(void *unused)
      */
     rc = ble_hs_start();
     assert(rc == 0);
+
+    /* Set the led pin for the devboard */
+    g_led_pin = LED_BLINK_PIN;
+
+    hal_gpio_init_out(g_led_pin, 1);
+#if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
+    hal_gpio_clear(g_led_pin);
+#else
+    hal_gpio_set(g_led_pin);
+#endif
 
     rc = ble_gap_wl_set(peer_white_list, 8);
     assert(rc == 0);

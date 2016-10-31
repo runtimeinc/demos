@@ -1,0 +1,4 @@
+### Target: targets/bleslave-rbn1
+target.app: "apps/bleslave"
+target.bsp: "@apache-mynewt-core/hw/bsp/nrf51-blenano"
+target.build_profile: "debug"

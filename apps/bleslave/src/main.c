@@ -321,7 +321,7 @@ main(void)
     int rc;
 
     /* Set initial BLE device address. */
-    memcpy(g_dev_addr, (uint8_t[6]){0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x10}, 6);
+    memcpy(g_dev_addr, (uint8_t[6]){0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x12}, 6);
 
     /* Initialize OS */
     sysinit();
@@ -349,7 +349,7 @@ main(void)
     assert(rc == 0);
 
     /* Set the default device name. */
-    rc = ble_svc_gap_device_name_set("runtime-10");
+    rc = ble_svc_gap_device_name_set("runtime-12");
     assert(rc == 0);
 
     /* Start the OS */

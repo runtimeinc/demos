@@ -1,0 +1,5 @@
+### Package: targets/bleslave-rbn1
+
+syscfg.vals:
+    BLE_LL_CFG_FEAT_LE_ENCRYPTION: 0
+    BLE_SM: 0
