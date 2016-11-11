@@ -68,6 +68,7 @@ static int blecent_gap_event(struct ble_gap_event *event, void *arg);
 
 const struct ble_gap_white_entry peer_white_list[] =
     {
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x00}},
      {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x01}},
      {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x02}},
      {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x03}},
@@ -77,9 +78,106 @@ const struct ble_gap_white_entry peer_white_list[] =
      {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x07}},
      {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x08}},
      {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x09}},
-     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x10}}
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x10}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x11}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x12}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x13}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x14}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x15}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x16}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x17}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x18}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x19}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x20}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x21}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x22}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x23}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x24}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x25}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x26}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x27}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x28}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x29}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x30}},
+     {BLE_ADDR_TYPE_PUBLIC, {0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x31}}
     };
 
+static const struct ble_gap_conn_params ble_gap_conn_params = {
+    .scan_itvl = 0x0010,
+    .scan_window = 0x0010,
+    .itvl_min = BLE_GAP_INITIAL_CONN_ITVL_MIN,
+    .itvl_max = BLE_GAP_INITIAL_CONN_ITVL_MAX * 2,
+    .latency = BLE_GAP_INITIAL_CONN_LATENCY,
+    .supervision_timeout = BLE_GAP_INITIAL_SUPERVISION_TIMEOUT,
+    .min_ce_len = BLE_GAP_INITIAL_CONN_MIN_CE_LEN,
+    .max_ce_len = BLE_GAP_INITIAL_CONN_MAX_CE_LEN,
+};
+#if 0
+static char uart_rx_buf[15];
+static char uart_tx_buf[128];
+static int uart_rx_idx;
+static int uart_tx_idx;
+static int cmd_len;
+static struct uart_dev *udv;
+
+/*
+ * Called by UART driver to send out next character.
+ *
+ * Interrupts disabled when nmgr_uart_tx_char/nmgr_uart_rx_char are called.
+ */
+static int
+app_uart_tx_char(void *arg)
+{
+    if (uart_tx_idx < cmd_len) {
+        return uart_tx_buf[uart_tx_idx++];
+    } else {
+        return -1;
+    }
+}
+
+/*
+ * Receive a character from UART.
+ */
+static int
+app_uart_rx_char(void *arg, uint8_t data)
+{
+    int rc;
+    int cmd;
+
+    uart_rx_buf[uart_rx_idx++] = data;
+    if (uart_rx_idx >= 7) {
+        cmd = uart_rx_buf[2];
+        if (cmd == 2) {
+            os_eventq_put(&blecent_evq, &ble_scan_ev);
+        } else if (cmd == 3) {
+            os_eventq_put(&blecent_evq, &ble_tx_ev);
+        }
+        uart_rx_idx = 0;
+        //memset(uart_rx_buf, 0, 7);
+    }
+
+    rc = 0;
+    return rc;
+}
+
+static void
+app_uart_init(void)
+{
+    struct uart_conf uc = {
+        .uc_speed = 9600,
+        .uc_databits = 8,
+        .uc_stopbits = 1,
+        .uc_parity = UART_PARITY_NONE,
+        .uc_flow_ctl = UART_FLOW_CTL_NONE,
+        .uc_tx_char = app_uart_tx_char,
+        .uc_rx_char = app_uart_rx_char,
+        .uc_cb_arg = NULL
+    };
+
+    udv = (struct uart_dev *)os_dev_open("uart0", 0, &uc);
+    uart_rx_idx = 0;
+}
+#endif
 /**
  * Initiates the GAP general discovery procedure.
  */
@@ -176,7 +274,7 @@ blecent_connect_if_interesting(const struct ble_gap_disc_desc *disc)
 
         if (!memcmp(peer_white_list[i].addr, disc->addr, 6)) {
             ble_gap_connect(BLE_ADDR_TYPE_PUBLIC, BLE_HCI_CONN_PEER_ADDR_PUBLIC, peer_white_list[i].addr,
-                            30000, NULL, blecent_gap_event, NULL);
+                            30000, &ble_gap_conn_params, blecent_gap_event, NULL);
         }
     }
 }
@@ -309,42 +407,20 @@ blecent_on_sync(void)
 static void
 blecent_task_handler(void *unused)
 {
-    struct os_event *ev;
-    struct os_callout_func *cf;
-    int rc;
-
-    /* Activate the host.  This causes the host to synchronize with the
-     * controller.
-     */
-    rc = ble_hs_start();
-    assert(rc == 0);
-
     /* Set the led pin for the devboard */
     g_led_pin = LED_BLINK_PIN;
 
     hal_gpio_init_out(g_led_pin, 1);
 #if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
-    hal_gpio_clear(g_led_pin);
+    hal_gpio_write(g_led_pin, 0);
 #else
-    hal_gpio_set(g_led_pin);
+    hal_gpio_write(g_led_pin, 1);
 #endif
 
-    rc = ble_gap_wl_set(peer_white_list, 8);
-    assert(rc == 0);
+//    app_uart_init();
 
     while (1) {
-        ev = os_eventq_get(&blecent_evq);
-        switch (ev->ev_type) {
-        case OS_EVENT_T_TIMER:
-            cf = (struct os_callout_func *)ev;
-            assert(cf->cf_func);
-            cf->cf_func(CF_ARG(cf));
-            break;
-
-        default:
-            assert(0);
-            break;
-        }
+        os_eventq_run(&blecent_evq);
     }
 }
 
@@ -379,7 +455,6 @@ main(void)
                  blecent_stack, BLECENT_STACK_SIZE);
 
     /* Configure the host. */
-    ble_hs_cfg.parent_evq = &blecent_evq;
     ble_hs_cfg.reset_cb = blecent_on_reset;
     ble_hs_cfg.sync_cb = blecent_on_sync;
     ble_hs_cfg.store_read_cb = ble_store_ram_read;
@@ -392,6 +467,9 @@ main(void)
     /* Set the default device name. */
     rc = ble_svc_gap_device_name_set("nimble-blecent");
     assert(rc == 0);
+
+    /* Set the default eventq for packages that lack a dedicated task. */
+    os_eventq_dflt_set(&blecent_evq);
 
     /* Start the OS */
     os_start();

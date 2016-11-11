@@ -2,6 +2,6 @@
 
 syscfg.vals:
     # DEBUG logging is a bit noisy; use INFO.
-    LOG_LEVEL: 1
-    BLE_MAX_CONNECTIONS: 10
+    LOG_LEVEL: 0
+    BLE_MAX_CONNECTIONS: 32
     BLE_LL_WHITELIST_SIZE: 8

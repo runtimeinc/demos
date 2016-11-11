@@ -55,6 +55,9 @@ static int bleprph_gap_event(struct ble_gap_event *event, void *arg);
 /* For LED toggling */
 static int g_led_pin;
 
+
+struct os_callout led_callout;
+
 /**
  * Logs information about a connection to the console.
  */
@@ -145,6 +148,27 @@ bleprph_advertise(void)
     }
 }
 
+static void
+bleprph_stop_gpio_toggle(void)
+{
+    os_callout_stop(&led_callout);
+#if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
+    hal_gpio_write(g_led_pin, 1);
+#else
+    hal_gpio_write(g_led_pin, 0);
+#endif
+}
+
+static void
+bleprph_gpio_toggle(struct os_event *unused)
+{
+        hal_gpio_toggle(g_led_pin);
+
+        /* Re-start timer */
+        os_callout_reset(&led_callout,
+                         OS_TICKS_PER_SEC/10);
+}
+
 /**
  * The nimble host executes this callback when a GAP event occurs.  The
  * application associates a GAP event callback with each connection that forms.
@@ -183,11 +207,8 @@ bleprph_gap_event(struct ble_gap_event *event, void *arg)
             /* Connection failed; resume advertising. */
             bleprph_advertise();
         }
-#if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
-        hal_gpio_write(g_led_pin, 0);
-#else
-        hal_gpio_write(g_led_pin, 1);
-#endif
+
+        bleprph_gpio_toggle(NULL);
         return 0;
 
     case BLE_GAP_EVENT_DISCONNECT:
@@ -197,11 +218,7 @@ bleprph_gap_event(struct ble_gap_event *event, void *arg)
 
         /* Connection terminated; resume advertising. */
         bleprph_advertise();
-#if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
-        hal_gpio_write(g_led_pin, 1);
-#else
-        hal_gpio_write(g_led_pin, 0);
-#endif
+        bleprph_stop_gpio_toggle();
         return 0;
 
     case BLE_GAP_EVENT_CONN_UPDATE:
@@ -266,43 +283,8 @@ bleprph_on_sync(void)
 static void
 bleprph_task_handler(void *unused)
 {
-    struct os_event *ev;
-    struct os_callout_func *cf;
-    int rc;
-
-    /* Set the led pin for the devboard */
-    g_led_pin = LED_BLINK_PIN;
-    hal_gpio_init_out(g_led_pin, 1);
-#if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
-    hal_gpio_write(g_led_pin, 1);
-#else
-    hal_gpio_write(g_led_pin, 0);
-#endif
-
-    /* Activate the host.  This causes the host to synchronize with the
-     * controller.
-     */
-    rc = ble_hs_start();
-
     while (1) {
-        ev = os_eventq_get(&bleprph_evq);
-
-        /* Check if the event is a nmgr ble mqueue event */
-        rc = nmgr_ble_proc_mq_evt(ev);
-        if (!rc) {
-            continue;
-        }
-
-        switch (ev->ev_type) {
-        case OS_EVENT_T_TIMER:
-            cf = (struct os_callout_func *)ev;
-            assert(cf->cf_func);
-            cf->cf_func(CF_ARG(cf));
-            break;
-        default:
-            assert(0);
-            break;
-        }
+        os_eventq_run(&bleprph_evq);
     }
 }
 
@@ -321,7 +303,7 @@ main(void)
     int rc;
 
     /* Set initial BLE device address. */
-    memcpy(g_dev_addr, (uint8_t[6]){0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x12}, 6);
+    memcpy(g_dev_addr, (uint8_t[6]){0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x24}, 6);
 
     /* Initialize OS */
     sysinit();
@@ -339,8 +321,14 @@ main(void)
                  NULL, BLEPRPH_TASK_PRIO, OS_WAIT_FOREVER,
                  bleprph_stack, BLEPRPH_STACK_SIZE);
 
+    os_callout_init(&led_callout,
+                    &bleprph_evq,
+                    bleprph_gpio_toggle,
+                    NULL);
+
     /* Initialize the NimBLE host configuration. */
-    ble_hs_cfg.parent_evq = &bleprph_evq;
+    log_register("ble_hs", &ble_hs_log, &log_console_handler, NULL,
+                 LOG_SYSLEVEL);
     ble_hs_cfg.reset_cb = bleprph_on_reset;
     ble_hs_cfg.sync_cb = bleprph_on_sync;
     ble_hs_cfg.gatts_register_cb = gatt_svr_register_cb;
@@ -349,8 +337,19 @@ main(void)
     assert(rc == 0);
 
     /* Set the default device name. */
-    rc = ble_svc_gap_device_name_set("runtime-12");
+    rc = ble_svc_gap_device_name_set("runtime-24");
     assert(rc == 0);
+
+    /* Set the default eventq for packages that lack a dedicated task. */
+    os_eventq_dflt_set(&bleprph_evq);
+
+    /* Set the led pin for the devboard */
+    g_led_pin = LED_BLINK_PIN;
+#if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
+    hal_gpio_init_out(g_led_pin, 1);
+#else
+    hal_gpio_init_out(g_led_pin, 0);
+#endif
 
     /* Start the OS */
     os_start();
