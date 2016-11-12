@@ -1,2 +1,4 @@
+### Package: targets/bleslave-rbn2
+
 syscfg.vals:
-    BLE_G_DEV_ADDR_6: '0x24'
+    BLE_G_DEV_ADDR_6: 0x24

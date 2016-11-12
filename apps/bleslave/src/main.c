@@ -301,7 +301,7 @@ int
 main(void)
 {
     int rc;
-    char *devname = "runtime-";
+    char devname[15] = "runtime-";
 
     /* Set initial BLE device address. */
     memcpy(g_dev_addr, (uint8_t[6]){0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x00}, 6);
@@ -341,7 +341,7 @@ main(void)
 
     /* Set the default device name. */
 
-    sprintf(devname, "%x", g_dev_addr[5]);
+    sprintf(devname, "%s%x", devname, g_dev_addr[5]);
     assert(devname != NULL);
     rc = ble_svc_gap_device_name_set(devname);
     assert(rc == 0);
