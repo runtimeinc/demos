@@ -24,3 +24,11 @@ syscfg.vals:
 
     # Enable Config.
     CONFIG_NEWTMGR: 1
+
+syscfg.defs:
+  BLE_G_DEV_ADDR_6:
+        description: 'BLE_G_DEV_ADDR 6th byte'
+        value:
+        restrictions:
+          - $notnull
+

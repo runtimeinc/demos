@@ -1,0 +1,2 @@
+syscfg.vals:
+    BLE_G_DEV_ADDR_6: '0x24'

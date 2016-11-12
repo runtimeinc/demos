@@ -301,9 +301,12 @@ int
 main(void)
 {
     int rc;
+    char *devname = "runtime-";
 
     /* Set initial BLE device address. */
-    memcpy(g_dev_addr, (uint8_t[6]){0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x24}, 6);
+    memcpy(g_dev_addr, (uint8_t[6]){0x0b, 0x0a, 0x0b, 0x0b, 0x00, 0x00}, 6);
+
+    g_dev_addr[5] = MYNEWT_VAL(BLE_G_DEV_ADDR_6);
 
     /* Initialize OS */
     sysinit();
@@ -337,7 +340,10 @@ main(void)
     assert(rc == 0);
 
     /* Set the default device name. */
-    rc = ble_svc_gap_device_name_set("runtime-24");
+
+    sprintf(devname, "%x", g_dev_addr[5]);
+    assert(devname != NULL);
+    rc = ble_svc_gap_device_name_set(devname);
     assert(rc == 0);
 
     /* Set the default eventq for packages that lack a dedicated task. */
