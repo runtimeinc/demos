@@ -1,4 +1,9 @@
 ### Package: targets/bleslave-rbn2
 
 syscfg.vals:
-    BLE_G_DEV_ADDR_6: 0x24
+    BLE_G_DEV_ADDR_6: 0x31
+    BLE_LL_CFG_FEAT_LE_ENCRYPTION: 0
+    BLE_SM: 0
+    SHELL_TASK: 1
+    STATS_CLI: 1
+    STATS_NAMES: 1
