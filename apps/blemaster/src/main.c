@@ -103,14 +103,14 @@ const struct ble_gap_white_entry peer_white_list[] =
     };
 
 static const struct ble_gap_conn_params ble_gap_conn_params = {
-    .scan_itvl = 0x0010,
-    .scan_window = 0x0010,
-    .itvl_min = BLE_GAP_INITIAL_CONN_ITVL_MIN,
-    .itvl_max = BLE_GAP_INITIAL_CONN_ITVL_MAX * 2,
-    .latency = BLE_GAP_INITIAL_CONN_LATENCY,
-    .supervision_timeout = BLE_GAP_INITIAL_SUPERVISION_TIMEOUT,
-    .min_ce_len = BLE_GAP_INITIAL_CONN_MIN_CE_LEN,
-    .max_ce_len = BLE_GAP_INITIAL_CONN_MAX_CE_LEN,
+    .scan_itvl = 0x0010,                                         /*  0x0010  */
+    .scan_window = 0x0010,                                       /*  0x0010  */
+    .itvl_min = BLE_GAP_INITIAL_CONN_ITVL_MIN,                   /*  30ms    */
+    .itvl_max = BLE_GAP_INITIAL_CONN_ITVL_MAX * 2,               /*  100ms   */
+    .latency = BLE_GAP_INITIAL_CONN_LATENCY,                     /*  0       */
+    .supervision_timeout = BLE_GAP_INITIAL_SUPERVISION_TIMEOUT,  /*  0x0100  */
+    .min_ce_len = BLE_GAP_INITIAL_CONN_MIN_CE_LEN,               /*  0x0010  */
+    .max_ce_len = BLE_GAP_INITIAL_CONN_MAX_CE_LEN,               /*  0x0300  */
 };
 #if 0
 static char uart_rx_buf[15];
