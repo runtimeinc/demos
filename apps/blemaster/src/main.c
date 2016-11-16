@@ -408,7 +408,11 @@ static void
 blecent_task_handler(void *unused)
 {
     /* Set the led pin for the devboard */
+#ifdef MYNEWT_VAL(LEDPIN)
+    g_led_pin = MYNEWT_VAL(LEDPIN);
+#else
     g_led_pin = LED_BLINK_PIN;
+#endif
 
     hal_gpio_init_out(g_led_pin, 1);
 #if defined(BSP_nrf51_blenano)||defined(BSP_nrf52dk)
