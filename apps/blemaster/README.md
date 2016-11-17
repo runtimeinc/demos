@@ -4,7 +4,7 @@ This app is a ble central app which connects to 32 peripherals
 simultaneously. It is a copy of Apache Mynewt's blecent app with some
 modifications.
 
-## App differences: blemaster app Vs blecent app ##
+## Modifications to blecent app ##
 
 - Changing the name to blemaster to avoid confusion in functionality
 - Changing dependencies to point to Apache mynewt core repo

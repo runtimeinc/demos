@@ -2,7 +2,7 @@
 
 This app is a ble peripheral app which advertises so that the central can connect to it. Currently it does not readvertise after a single connection is established. It is a copy of Apache Mynewt's bleprph app with some modifications.
 
-## App differences: bleslave Vs bleprph
+## Modifications to bleslave app ##
 
 - Changing the name to bleslave to avoid confusion in functionality
 - Changing dependencies to point to Apache mynewt core repo
