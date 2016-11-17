@@ -16,7 +16,7 @@ This app is a ble peripheral app which advertises so that the central can connec
 This app performs the following functions:
 
 - Advertises the name "runtime-XX" where XX is configured from the
-  target using the syscfg variable
+  target using the syscfg variable BLE_G_DEV_ADDR_6
 - Stops advertising once connected
 - Starts blinking LED on connecting
 - Is the ble central disconnects the LED stops blinking
